@@ -37,4 +37,12 @@ public class Member {
 
     public Member(){
     }
+
+    //연관관계 편의 메서드
+    //이것만 호출해도 양쪽으로 값이 다 들어간다
+    //원래는 널포인트 체크등 할 일이 많다
+    public void changeTeam(Team team) {
+        this.team = team;
+        team.getMembers().add(this);
+    }
 }

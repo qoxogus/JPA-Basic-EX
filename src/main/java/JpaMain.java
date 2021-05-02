@@ -5,6 +5,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.EntityTransaction;
 import javax.persistence.Persistence;
+import java.util.List;
 
 public class JpaMain {
 
@@ -102,11 +103,18 @@ public class JpaMain {
             member.setTeam(team); //JPA에서 insert할 때 자동으로 FK값을 사용함
             em.persist(member);
 
+            em.flush();
+            em.clear();
+
             Member findMember = em.find(Member.class, member.getId());
 
-            Team findTeam = findMember.getTeam();
+//            Team findTeam = findMember.getTeam();
 
-            System.out.println("findTeam = " + findTeam.getName());
+            List<Member> members = findMember.getTeam().getMembers(); //Member -> Team -> Member 양쪽으로 왔다 갔다 하고 있다 (양방향 연관관계)
+
+            for (Member m : members) {
+                System.out.println("m.getUsername() = " + m.getUsername());
+            }
 
             tx.commit(); //트랜젝션 커밋시점에 쿼리가 나가게 된다
         } catch (Exception e) {

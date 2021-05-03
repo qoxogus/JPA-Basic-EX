@@ -21,6 +21,8 @@ public class Member {
     @Column(name = "name", nullable = false)
     private String username;
 
+
+
 //    private Integer age;
 // 
 //    @Enumerated(EnumType.STRING) //Enum타입이 ordinal(defualt) -> enum순서(숫자)를 데이터베이스에 저장 / string -> enum이름을 데이터베이스에 저장
@@ -41,8 +43,8 @@ public class Member {
     //연관관계 편의 메서드
     //이것만 호출해도 양쪽으로 값이 다 들어간다
     //원래는 널포인트 체크등 할 일이 많다
-    public void changeTeam(Team team) {
-        this.team = team;
-        team.getMembers().add(this);
-    }
+//    public void changeTeam(Team team) {
+//        this.team = team;
+//        team.getMembers().add(this);
+//    }
 }

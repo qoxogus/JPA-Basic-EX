@@ -94,20 +94,20 @@ public class JpaMain {
 //            em.close(); //영속성 컨텍스트 종료
 
             //저장
-            Team team = new Team();
-            team.setName("TeamA");
-//            team.getMembers().add(member); //members는 읽기전용!!!!!!!!!!!!! 가짜매핑!!!!!!!!!!
-            em.persist(team);
-
-            Member member = new Member();
-            member.setUsername("member1");
-            member.changeTeam(team); //**  연관관계 편의 메소드 사용 changeTeam()  //JPA에서 insert할 때 자동으로 FK값을 사용함  <- 이렇게 해야 함 (연관관계 주인에 값을 넣어줌)
-            em.persist(member);
+//            Team team = new Team();
+//            team.setName("TeamA");
+////            team.getMembers().add(member); //members는 읽기전용!!!!!!!!!!!!! 가짜매핑!!!!!!!!!!
+//            em.persist(team);
+//
+//            Member member = new Member();
+//            member.setUsername("member1");
+//            member.changeTeam(team); //**  연관관계 편의 메소드 사용 changeTeam()  //JPA에서 insert할 때 자동으로 FK값을 사용함  <- 이렇게 해야 함 (연관관계 주인에 값을 넣어줌)
+//            em.persist(member);
 
 //            team.getMembers().add(member); //** 연관관계 편의 메소드 사용으로 코드가 필요없어짐
 
-            em.flush();
-            em.clear();
+//            em.flush();
+//            em.clear();
 
 //            Member findMember = em.find(Member.class, member.getId());
 //
@@ -119,14 +119,26 @@ public class JpaMain {
 //                System.out.println("m.getUsername() = " + m.getUsername());
 //            }
 
-            Team findTeam = em.find(Team.class, team.getId()); //플러시, 클리어가 없다면 1차캐시에서 가지고 옴  team.getMembers().add(member);가 없다면 아무것도 가져오지 못한다
-            List<Member> members = findTeam.getMembers();
-            for (Member m : members) {
-                System.out.println("m.getUsername() = " + m.getUsername()); //알맞은 값을 가져와서 출력이되긴 한다 하지만 객체지향스럽지 않다
-                //그리고 두군데서 문제가 된다
-                //플러시, 클리어를 해버리면 문제가 없다 그런데 없다면.. 1차캐시에서 가지고 오겠죠? -> team.getMembers().add(member);가 없다면 아무것도 가져오지 못한다
-                //테스트 케이스 작성할때 문제가 됨
-            }
+//            Team findTeam = em.find(Team.class, team.getId()); //플러시, 클리어가 없다면 1차캐시에서 가지고 옴  team.getMembers().add(member);가 없다면 아무것도 가져오지 못한다
+//            List<Member> members = findTeam.getMembers();
+//            for (Member m : members) {
+//                System.out.println("m.getUsername() = " + m.getUsername()); //알맞은 값을 가져와서 출력이되긴 한다 하지만 객체지향스럽지 않다
+//                //그리고 두군데서 문제가 된다
+//                //플러시, 클리어를 해버리면 문제가 없다 그런데 없다면.. 1차캐시에서 가지고 오겠죠? -> team.getMembers().add(member);가 없다면 아무것도 가져오지 못한다
+//                //테스트 케이스 작성할때 문제가 됨
+//            }
+
+            Member member = new Member();
+            member.setUsername("member1");
+
+            em.persist(member);
+
+            Team team = new Team();
+            team.setName("TeamA");
+            //
+            team.getMembers().add(member); //Member테이블에 있는 외래키가 업데이트 될 것.
+
+            em.persist(team);
 
             tx.commit(); //트랜젝션 커밋시점에 쿼리가 나가게 된다
         } catch (Exception e) {

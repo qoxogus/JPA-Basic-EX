@@ -5,6 +5,7 @@ import lombok.Setter;
 
 import javax.persistence.*;
 import javax.swing.text.TabExpander;
+import java.util.concurrent.locks.Lock;
 
 @Entity
 @Getter
@@ -17,6 +18,10 @@ public class Member {
     @ManyToOne  //하나의 팀이 여러명의 멤버를 가질 수 있음
     @JoinColumn(name = "TEAM_ID") //join하는 컬럼은 TEAM_ID  Team을 TEAM_ID로 join
     private Team team;
+
+    @OneToOne
+    @JoinColumn(name = "LOCKER_ID")
+    private Locker locker;
 
     @Column(name = "name", nullable = false)
     private String username;

@@ -5,6 +5,8 @@ import lombok.Setter;
 
 import javax.persistence.*;
 import javax.swing.text.TabExpander;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.locks.Lock;
 
 @Entity
@@ -22,6 +24,10 @@ public class Member {
     @OneToOne
     @JoinColumn(name = "LOCKER_ID")
     private Locker locker;
+
+    @OneToMany(mappedBy = "member")
+//    @JoinTable(name = "MEMBER_PRODUCT") //테이블 이름이 들어감 연결테이블이 PK가 FK로되는 구조로 생성되어 풀어냄
+    private List<MemberProduct> memberProducts = new ArrayList<>();
 
     @Column(name = "name", nullable = false)
     private String username;

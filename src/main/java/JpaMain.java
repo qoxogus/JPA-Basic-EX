@@ -1,3 +1,4 @@
+import entity.Items.Movie;
 import entity.Member;
 import entity.Team;
 
@@ -128,17 +129,31 @@ public class JpaMain {
 //                //테스트 케이스 작성할때 문제가 됨
 //            }
 
-            Member member = new Member();
-            member.setUsername("member1");
+//            Member member = new Member();
+//            member.setUsername("member1");
+//
+//            em.persist(member);
+//
+//            Team team = new Team();
+//            team.setName("TeamA");
+//            //
+//            team.getMembers().add(member); //Member테이블에 있는 외래키가 업데이트 될 것.
+//
+//            em.persist(team);
 
-            em.persist(member);
+            Movie movie = new Movie();
+            movie.setDirector("aaa");
+            movie.setActor("bbb");
+            movie.setName("바람과함께 사라지다");
+            movie.setPrice(10000);
 
-            Team team = new Team();
-            team.setName("TeamA");
-            //
-            team.getMembers().add(member); //Member테이블에 있는 외래키가 업데이트 될 것.
+            em.persist(movie);
 
-            em.persist(team);
+            em.flush();
+            em.clear();
+
+            Movie findMove = em.find(Movie.class, movie.getId());
+            System.out.println("findMove = " + findMove);
 
             tx.commit(); //트랜젝션 커밋시점에 쿼리가 나가게 된다
         } catch (Exception e) {

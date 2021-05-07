@@ -6,6 +6,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.EntityTransaction;
 import javax.persistence.Persistence;
+import java.time.LocalDateTime;
 import java.util.List;
 
 public class JpaMain {
@@ -141,19 +142,21 @@ public class JpaMain {
 //
 //            em.persist(team);
 
-            Movie movie = new Movie();
-            movie.setDirector("aaa");
-            movie.setActor("bbb");
-            movie.setName("바람과함께 사라지다");
-            movie.setPrice(10000);
+//            Movie movie = new Movie();
+//            movie.setDirector("aaa");
+//            movie.setActor("bbb");
+//            movie.setName("바람과함께 사라지다");
+//            movie.setPrice(10000);
 
-            em.persist(movie);
+            Member member = new Member();
+            member.setUsername("user1");
+            member.setCreateBy("kim");
+            member.setCreateDate(LocalDateTime.now());
+
+            em.persist(member);
 
             em.flush();
             em.clear();
-
-            Movie findMove = em.find(Movie.class, movie.getId());
-            System.out.println("findMove = " + findMove);
 
             tx.commit(); //트랜젝션 커밋시점에 쿼리가 나가게 된다
         } catch (Exception e) {

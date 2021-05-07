@@ -2,9 +2,11 @@ package entity;
 
 import lombok.Getter;
 import lombok.Setter;
+import net.bytebuddy.asm.Advice;
 
 import javax.persistence.*;
 import javax.swing.text.TabExpander;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.locks.Lock;
@@ -12,7 +14,7 @@ import java.util.concurrent.locks.Lock;
 @Entity
 @Getter
 @Setter
-public class Member {
+public class Member extends BaseEntity{
 
     @Id @GeneratedValue
     private Long id;

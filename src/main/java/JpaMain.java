@@ -1,6 +1,7 @@
 import entity.Items.Movie;
 import entity.Member;
 import entity.Team;
+import org.hibernate.Hibernate;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
@@ -148,15 +149,47 @@ public class JpaMain {
 //            movie.setName("바람과함께 사라지다");
 //            movie.setPrice(10000);
 
+//            Member member = new Member();
+//            member.setUsername("user1");
+//            member.setCreateBy("kim");
+//            member.setCreateDate(LocalDateTime.now());
+//
+//            em.persist(member);
+//
+//            em.flush();
+//            em.clear();
+
+//            Member member = em.find(Member.class, 1L);
+//            printMember(member);
+//
+//            printMemberAndTeam(member);
+
             Member member = new Member();
-            member.setUsername("user1");
-            member.setCreateBy("kim");
-            member.setCreateDate(LocalDateTime.now());
+            member.setUsername("hello");
 
             em.persist(member);
 
             em.flush();
             em.clear();
+
+//            Member findMember = em.find(Member.class, member.getId());
+//            Member findMember = em.getReference(Member.class, member.getId()); //조회할 때는 쿼리가 나가지않고 (프록시객체 조회)
+//            System.out.println("findMember.getId() = " + findMember.getId()); //윗줄 코드에서 파라미터에서 사용됬기때문에 DB에서 찾아오지않아도 알 수 있기때문에 쿼리문이 나가지 않음
+//            System.out.println("findMember.getClass() = " + findMember.getClass()); //프록시(가짜) 클래스
+//            System.out.println("findMember.getUsername() = " + findMember.getUsername()); //값이 사용되는 시점에 쿼리가 나가게 됨 (실제 가져다 쓰는 시점)
+//            System.out.println("findMember.getUsername() = " + findMember.getUsername()); //값이 있으니까 쿼리가 한번 더 나가지 않고 조회가 된다
+
+            Member m1 = em.find(Member.class, member.getId());
+            System.out.println("m1.getClass() = " + m1.getClass());
+
+            Member reference = em.getReference(Member.class, member.getId());
+            System.out.println("reference = " + reference.getClass()); //Proxy //이미 영속성 컨텍스트에 있으면 영속성 컨텍스트(실제엔티티)에서 가져오기때문에 클래스는 Member로 찍힌다
+
+            System.out.println("reference == m1 = " + (reference == m1)); //true //프록시에서 가져온다면 타입이 안맞기 때문에 false가 떠야하는데 Member에서 가져왔기때문에 == 비교가 가능한것! 그리고 JPA는 기본적으로 ==비교가 되도록 맞춘다
+
+            Hibernate.initialize(reference); //프록시 강제 초기화
+
+            System.out.println("isLoaded = " + emf.getPersistenceUnitUtil().isLoaded(reference)); //프록시 인스턴스의 초기화 여부 확인
 
             tx.commit(); //트랜젝션 커밋시점에 쿼리가 나가게 된다
         } catch (Exception e) {
@@ -165,6 +198,18 @@ public class JpaMain {
             em.close();
         }
         emf.close();
+    }
+
+    private static void printMember(Member member) {
+        System.out.println("member.getUsername() = " + member.getUsername());
+    }
+
+    private static void printMemberAndTeam(Member member) {
+        String username = member.getUsername();
+        System.out.println("username = " + username);
+
+        Team team = member.getTeam();
+        System.out.println("team = " + team);
     }
 }
 

@@ -23,13 +23,13 @@ public class Member extends BaseEntity{
     @JoinColumn(name = "TEAM_ID") //join하는 컬럼은 TEAM_ID  Team을 TEAM_ID로 join
     private Team team;
 
-    @OneToOne
-    @JoinColumn(name = "LOCKER_ID")
-    private Locker locker;
-
-    @OneToMany(mappedBy = "member")
-//    @JoinTable(name = "MEMBER_PRODUCT") //테이블 이름이 들어감 연결테이블이 PK가 FK로되는 구조로 생성되어 풀어냄
-    private List<MemberProduct> memberProducts = new ArrayList<>();
+//    @OneToOne
+//    @JoinColumn(name = "LOCKER_ID")
+//    private Locker locker;
+//
+//    @OneToMany(mappedBy = "member")
+////    @JoinTable(name = "MEMBER_PRODUCT") //테이블 이름이 들어감 연결테이블이 PK가 FK로되는 구조로 생성되어 풀어냄
+//    private List<MemberProduct> memberProducts = new ArrayList<>();
 
     @Column(name = "name", nullable = false)
     private String username;

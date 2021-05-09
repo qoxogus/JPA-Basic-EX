@@ -179,21 +179,46 @@ public class JpaMain {
 //            System.out.println("findMember.getUsername() = " + findMember.getUsername()); //값이 사용되는 시점에 쿼리가 나가게 됨 (실제 가져다 쓰는 시점)
 //            System.out.println("findMember.getUsername() = " + findMember.getUsername()); //값이 있으니까 쿼리가 한번 더 나가지 않고 조회가 된다
 
-            Member m1 = em.find(Member.class, member.getId());
-            System.out.println("m1.getClass() = " + m1.getClass());
+//            Member m1 = em.find(Member.class, member.getId());
+//            System.out.println("m1.getClass() = " + m1.getClass());
+//
+//            Member reference = em.getReference(Member.class, member.getId());
+//            System.out.println("reference = " + reference.getClass()); //Proxy //이미 영속성 컨텍스트에 있으면 영속성 컨텍스트(실제엔티티)에서 가져오기때문에 클래스는 Member로 찍힌다
+//
+//            System.out.println("reference == m1 = " + (reference == m1)); //true //프록시에서 가져온다면 타입이 안맞기 때문에 false가 떠야하는데 Member에서 가져왔기때문에 == 비교가 가능한것! 그리고 JPA는 기본적으로 ==비교가 되도록 맞춘다
+//
+//            Hibernate.initialize(reference); //프록시 강제 초기화
+//
+//            System.out.println("isLoaded = " + emf.getPersistenceUnitUtil().isLoaded(reference)); //프록시 인스턴스의 초기화 여부 확인
 
-            Member reference = em.getReference(Member.class, member.getId());
-            System.out.println("reference = " + reference.getClass()); //Proxy //이미 영속성 컨텍스트에 있으면 영속성 컨텍스트(실제엔티티)에서 가져오기때문에 클래스는 Member로 찍힌다
+            Team team = new Team();
+            team.setName("teamA");
+            em.persist(team);
 
-            System.out.println("reference == m1 = " + (reference == m1)); //true //프록시에서 가져온다면 타입이 안맞기 때문에 false가 떠야하는데 Member에서 가져왔기때문에 == 비교가 가능한것! 그리고 JPA는 기본적으로 ==비교가 되도록 맞춘다
+            Member member1 = new Member();
+            member1.setUsername("member1");
+            member1.setTeam(team);
 
-            Hibernate.initialize(reference); //프록시 강제 초기화
+            em.persist(member1);
 
-            System.out.println("isLoaded = " + emf.getPersistenceUnitUtil().isLoaded(reference)); //프록시 인스턴스의 초기화 여부 확인
+            em.flush();
+            em.clear();
+
+//            Member m = em.find(Member.class, member1.getId());
+//            System.out.println("m.getTeam().getClass() = " + m.getTeam().getClass()); //(LAZY)지연로딩을 이용해 프록시로 조회한다 (EAGER)진짜 엔티티인 Team출력됨
+//
+//            System.out.println("=============");
+//            System.out.println("TeamName = " + m.getTeam().getName()); //(LAZY)프록시 객체 초기화 (쿼리문이 나가는 부분)  m.getTeam(); 만 할때는 초기화 되지않는다 그냥 프록시에서 가져오기 때문에 프록시 내부에 있는 메서드(getName())를 이제 사용하게 되면서 쿼리가 나가게 된다
+//            //(EAGER) 팀 이름 출력
+//            System.out.println("=============");
+
+            List<Member> members = em.createQuery("select m from Member m join fetch m.team", Member.class)
+                    .getResultList();
 
             tx.commit(); //트랜젝션 커밋시점에 쿼리가 나가게 된다
         } catch (Exception e) {
             tx.rollback();
+            e.printStackTrace();
         } finally {
             em.close();
         }

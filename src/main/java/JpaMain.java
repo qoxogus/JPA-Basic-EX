@@ -1,5 +1,7 @@
+import entity.Child;
 import entity.Items.Movie;
 import entity.Member;
+import entity.Parent;
 import entity.Team;
 import org.hibernate.Hibernate;
 
@@ -164,13 +166,13 @@ public class JpaMain {
 //
 //            printMemberAndTeam(member);
 
-            Member member = new Member();
-            member.setUsername("hello");
-
-            em.persist(member);
-
-            em.flush();
-            em.clear();
+//            Member member = new Member();
+//            member.setUsername("hello");
+//
+//            em.persist(member);
+//
+//            em.flush();
+//            em.clear();
 
 //            Member findMember = em.find(Member.class, member.getId());
 //            Member findMember = em.getReference(Member.class, member.getId()); //조회할 때는 쿼리가 나가지않고 (프록시객체 조회)
@@ -191,29 +193,47 @@ public class JpaMain {
 //
 //            System.out.println("isLoaded = " + emf.getPersistenceUnitUtil().isLoaded(reference)); //프록시 인스턴스의 초기화 여부 확인
 
-            Team team = new Team();
-            team.setName("teamA");
-            em.persist(team);
+//            Team team = new Team();
+//            team.setName("teamA");
+//            em.persist(team);
+//
+//            Member member1 = new Member();
+//            member1.setUsername("member1");
+//            member1.setTeam(team);
+//
+//            em.persist(member1);
+//
+//            em.flush();
+//            em.clear();
+//
+////            Member m = em.find(Member.class, member1.getId());
+////            System.out.println("m.getTeam().getClass() = " + m.getTeam().getClass()); //(LAZY)지연로딩을 이용해 프록시로 조회한다 (EAGER)진짜 엔티티인 Team출력됨
+////
+////            System.out.println("=============");
+////            System.out.println("TeamName = " + m.getTeam().getName()); //(LAZY)프록시 객체 초기화 (쿼리문이 나가는 부분)  m.getTeam(); 만 할때는 초기화 되지않는다 그냥 프록시에서 가져오기 때문에 프록시 내부에 있는 메서드(getName())를 이제 사용하게 되면서 쿼리가 나가게 된다
+////            //(EAGER) 팀 이름 출력
+////            System.out.println("=============");
+//
+//            List<Member> members = em.createQuery("select m from Member m join fetch m.team", Member.class)
+//                    .getResultList();
 
-            Member member1 = new Member();
-            member1.setUsername("member1");
-            member1.setTeam(team);
+            Child child1 = new Child();
+            Child child2 = new Child();
 
-            em.persist(member1);
+            Parent parent = new Parent();
+            parent.addChild(child1);
+            parent.addChild(child2);
+
+            em.persist(parent); //Parent중심으로 코딩을 하고있다 -> parent만 persist했는데 cascade로 인하여 child1,2까지  persist된다. (ex 부모엔티티가 저장될 때 자식 엔티티도 같이 저장된다) (단일소유 일때만 cascade를 써라 ex Parnet만 Child를 알고있을 때(Member가 Child를 알고있다거나하면 안됨) Child는 아래로 더 뻗어나가도 상관이 없다)
+//            em.persist(child1);
+//            em.persist(child2);
 
             em.flush();
             em.clear();
 
-//            Member m = em.find(Member.class, member1.getId());
-//            System.out.println("m.getTeam().getClass() = " + m.getTeam().getClass()); //(LAZY)지연로딩을 이용해 프록시로 조회한다 (EAGER)진짜 엔티티인 Team출력됨
-//
-//            System.out.println("=============");
-//            System.out.println("TeamName = " + m.getTeam().getName()); //(LAZY)프록시 객체 초기화 (쿼리문이 나가는 부분)  m.getTeam(); 만 할때는 초기화 되지않는다 그냥 프록시에서 가져오기 때문에 프록시 내부에 있는 메서드(getName())를 이제 사용하게 되면서 쿼리가 나가게 된다
-//            //(EAGER) 팀 이름 출력
-//            System.out.println("=============");
-
-            List<Member> members = em.createQuery("select m from Member m join fetch m.team", Member.class)
-                    .getResultList();
+            Parent findParent = em.find(Parent.class, parent.getId());
+            findParent.getChildList().remove(0); //컬렉션 0번째 고아객체를 지워줌
+//            em.remove(findParent);
 
             tx.commit(); //트랜젝션 커밋시점에 쿼리가 나가게 된다
         } catch (Exception e) {

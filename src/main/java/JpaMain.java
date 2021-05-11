@@ -1,8 +1,5 @@
-import entity.Child;
+import entity.*;
 import entity.Items.Movie;
-import entity.Member;
-import entity.Parent;
-import entity.Team;
 import org.hibernate.Hibernate;
 
 import javax.persistence.EntityManager;
@@ -217,23 +214,30 @@ public class JpaMain {
 //            List<Member> members = em.createQuery("select m from Member m join fetch m.team", Member.class)
 //                    .getResultList();
 
-            Child child1 = new Child();
-            Child child2 = new Child();
+//            Child child1 = new Child();
+//            Child child2 = new Child();
+//
+//            Parent parent = new Parent();
+//            parent.addChild(child1);
+//            parent.addChild(child2);
+//
+//            em.persist(parent); //Parent중심으로 코딩을 하고있다 -> parent만 persist했는데 cascade로 인하여 child1,2까지  persist된다. (ex 부모엔티티가 저장될 때 자식 엔티티도 같이 저장된다) (단일소유 일때만 cascade를 써라 ex Parnet만 Child를 알고있을 때(Member가 Child를 알고있다거나하면 안됨) Child는 아래로 더 뻗어나가도 상관이 없다)
+////            em.persist(child1);
+////            em.persist(child2);
+//
+//            em.flush();
+//            em.clear();
+//
+//            Parent findParent = em.find(Parent.class, parent.getId());
+//            findParent.getChildList().remove(0); //컬렉션 0번째 고아객체를 지워줌
+////            em.remove(findParent);
 
-            Parent parent = new Parent();
-            parent.addChild(child1);
-            parent.addChild(child2);
+            Member member = new Member();
+            member.setUsername("hello");
+            member.setHomeAddress(new Address("city", "street", "1000"));
+            member.setWorkPeriod(new Period());
 
-            em.persist(parent); //Parent중심으로 코딩을 하고있다 -> parent만 persist했는데 cascade로 인하여 child1,2까지  persist된다. (ex 부모엔티티가 저장될 때 자식 엔티티도 같이 저장된다) (단일소유 일때만 cascade를 써라 ex Parnet만 Child를 알고있을 때(Member가 Child를 알고있다거나하면 안됨) Child는 아래로 더 뻗어나가도 상관이 없다)
-//            em.persist(child1);
-//            em.persist(child2);
-
-            em.flush();
-            em.clear();
-
-            Parent findParent = em.find(Parent.class, parent.getId());
-            findParent.getChildList().remove(0); //컬렉션 0번째 고아객체를 지워줌
-//            em.remove(findParent);
+            em.persist(member);
 
             tx.commit(); //트랜젝션 커밋시점에 쿼리가 나가게 된다
         } catch (Exception e) {
@@ -245,16 +249,16 @@ public class JpaMain {
         emf.close();
     }
 
-    private static void printMember(Member member) {
-        System.out.println("member.getUsername() = " + member.getUsername());
-    }
-
-    private static void printMemberAndTeam(Member member) {
-        String username = member.getUsername();
-        System.out.println("username = " + username);
-
-        Team team = member.getTeam();
-        System.out.println("team = " + team);
-    }
+//    private static void printMember(Member member) {
+//        System.out.println("member.getUsername() = " + member.getUsername());
+//    }
+//
+//    private static void printMemberAndTeam(Member member) {
+//        String username = member.getUsername();
+//        System.out.println("username = " + username);
+//
+//        Team team = member.getTeam();
+//        System.out.println("team = " + team);
+//    }
 }
 

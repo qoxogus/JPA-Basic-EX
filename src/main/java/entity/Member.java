@@ -14,14 +14,30 @@ import java.util.concurrent.locks.Lock;
 @Entity
 @Getter
 @Setter
-public class Member extends BaseEntity{
+public class Member {
 
     @Id @GeneratedValue
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)  //하나의 팀이 여러명의 멤버를 가질 수 있음
-    @JoinColumn(name = "TEAM_ID") //join하는 컬럼은 TEAM_ID  Team을 TEAM_ID로 join
-    private Team team;
+    @Column(name = "USERNAME", nullable = false)
+    private String username;
+
+    //기간 Period
+    @Embedded //값 타입을 사용하는곳에 표시하는 어노테이션
+    private Period workPeriod;
+//    private LocalDateTime startDate;
+//    private LocalDateTime endDate;
+
+    //주소
+    @Embedded
+    private Address homeAddress;
+//    private String city;
+//    private String street;
+//    private String zipcode;
+
+//    @ManyToOne(fetch = FetchType.LAZY)  //하나의 팀이 여러명의 멤버를 가질 수 있음
+//    @JoinColumn(name = "TEAM_ID") //join하는 컬럼은 TEAM_ID  Team을 TEAM_ID로 join
+//    private Team team;
 
 //    @OneToOne
 //    @JoinColumn(name = "LOCKER_ID")
@@ -30,11 +46,6 @@ public class Member extends BaseEntity{
 //    @OneToMany(mappedBy = "member")
 ////    @JoinTable(name = "MEMBER_PRODUCT") //테이블 이름이 들어감 연결테이블이 PK가 FK로되는 구조로 생성되어 풀어냄
 //    private List<MemberProduct> memberProducts = new ArrayList<>();
-
-    @Column(name = "name", nullable = false)
-    private String username;
-
-
 
 //    private Integer age;
 // 

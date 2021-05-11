@@ -232,12 +232,27 @@ public class JpaMain {
 //            findParent.getChildList().remove(0); //컬렉션 0번째 고아객체를 지워줌
 ////            em.remove(findParent);
 
-            Member member = new Member();
-            member.setUsername("hello");
-            member.setHomeAddress(new Address("city", "street", "1000"));
-            member.setWorkPeriod(new Period());
+            Address address = new Address("city", "street", "10000");
 
+            Member member = new Member();
+            member.setUsername("member1");
+//            member.setHomeAddress(new Address("city", "street", "1000"));
+//            member.setWorkPeriod(new Period());
+            member.setHomeAddress(address);
             em.persist(member);
+
+//            Address copyAddress = new Address(address.getCity(), address.getStreet(), address.getZipcode());
+//
+//            Member member2 = new Member();
+//            member2.setUsername("member1");
+//            member2.setHomeAddress(copyAddress);
+//            em.persist(member2);
+//
+//            //(사이드 이펙트) 이런곳에서 나오는 버그가 진짜 잡기 어려운 버그다
+//            member.getHomeAddress().setCity("newCity"); //member, member2의 city가 모두 newCity로 바뀌게된다 {copyAddress를 쓰게 되면 member만 newCity로 바뀌게된다}
+
+            Address newAddress = new Address("newCity", address.getStreet(), address.getZipcode()); //불변객체를 사용하되 값을 통으로(Address를) 바꿔끼워주는 방법을 사용하자 (필요시 내부에서 카피메서드를 만들어서 사용해도 된다) 생성자로만 값을 설정하고 수정자(Setter)를 만들지 않는 방법도 있다 하지만 불변객체로 만드는걸 추천한다
+            member.setHomeAddress(newAddress);
 
             tx.commit(); //트랜젝션 커밋시점에 쿼리가 나가게 된다
         } catch (Exception e) {

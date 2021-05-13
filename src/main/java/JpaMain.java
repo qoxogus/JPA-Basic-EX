@@ -8,6 +8,7 @@ import javax.persistence.EntityTransaction;
 import javax.persistence.Persistence;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 
 public class JpaMain {
 
@@ -232,14 +233,14 @@ public class JpaMain {
 //            findParent.getChildList().remove(0); //컬렉션 0번째 고아객체를 지워줌
 ////            em.remove(findParent);
 
-            Address address = new Address("city", "street", "10000");
-
-            Member member = new Member();
-            member.setUsername("member1");
-//            member.setHomeAddress(new Address("city", "street", "1000"));
-//            member.setWorkPeriod(new Period());
-            member.setHomeAddress(address);
-            em.persist(member);
+//            Address address = new Address("city", "street", "10000");
+//
+//            Member member = new Member();
+//            member.setUsername("member1");
+////            member.setHomeAddress(new Address("city", "street", "1000"));
+////            member.setWorkPeriod(new Period());
+//            member.setHomeAddress(address);
+//            em.persist(member);
 
 //            Address copyAddress = new Address(address.getCity(), address.getStreet(), address.getZipcode());
 //
@@ -251,8 +252,50 @@ public class JpaMain {
 //            //(사이드 이펙트) 이런곳에서 나오는 버그가 진짜 잡기 어려운 버그다
 //            member.getHomeAddress().setCity("newCity"); //member, member2의 city가 모두 newCity로 바뀌게된다 {copyAddress를 쓰게 되면 member만 newCity로 바뀌게된다}
 
-            Address newAddress = new Address("newCity", address.getStreet(), address.getZipcode()); //불변객체를 사용하되 값을 통으로(Address를) 바꿔끼워주는 방법을 사용하자 (필요시 내부에서 카피메서드를 만들어서 사용해도 된다) 생성자로만 값을 설정하고 수정자(Setter)를 만들지 않는 방법도 있다 하지만 불변객체로 만드는걸 추천한다
-            member.setHomeAddress(newAddress);
+//            Address newAddress = new Address("newCity", address.getStreet(), address.getZipcode()); //불변객체를 사용하되 값을 통으로(Address를) 바꿔끼워주는 방법을 사용하자 (필요시 내부에서 카피메서드를 만들어서 사용해도 된다) 생성자로만 값을 설정하고 수정자(Setter)를 만들지 않는 방법도 있다 하지만 불변객체로 만드는걸 추천한다
+//            member.setHomeAddress(newAddress);
+
+            Member member = new Member();
+            member.setUsername("member1");
+            member.setHomeAddress(new Address("homecity", "street", "10000"));
+
+            member.getFavoriteFoods().add("치킨");
+            member.getFavoriteFoods().add("족발");
+            member.getFavoriteFoods().add("피자"); //hashSet에 들어갈 것
+
+            member.getAddressHistory().add(new AddressEntity("old1", "street", "10000"));
+            member.getAddressHistory().add(new AddressEntity("old2", "street", "10000"));
+
+            em.persist(member);
+
+            em.flush();
+            em.clear();
+
+            System.out.println("==========Start==========");
+            Member findMember = em.find(Member.class, member.getId()); //컬렉션들은 지연로딩!
+
+//            List<Address> addressHistory = findMember.getAddressHistory();
+//            for (Address address : addressHistory) {
+//                System.out.println("address = " + address.getCity());
+//            }
+//
+//            Set<String> favoriteFoods = findMember.getFavoriteFoods();
+//            for (String favoriteFood : favoriteFoods) {
+//                System.out.println("favoriteFood = " + favoriteFood);
+//            }
+
+            //homeCity -> newCity
+            Address a = findMember.getHomeAddress();
+            findMember.setHomeAddress(new Address("newCity", a.getStreet(), a.getZipcode())); //값타입은 인스턴스 자체를 갈아껴야한다 Setter사용시 사이드 이펙트 발생가능성
+
+            //치킨 -> 한식  String값타입 업데이트 불가 삭제후 다시 추가하는 방법 사용
+            findMember.getFavoriteFoods().remove("치킨");
+            findMember.getFavoriteFoods().add("한식");
+
+            //
+//            findMember.getAddressHistory().remove(new Address("old1", "street", "10000")); //equls 제대로 안해놓으면 제대로 안지워짐
+//            findMember.getAddressHistory().remove(new Address("newCity1", "street", "10000"));
+            //그냥 사용하면 안되는 방법이다 데이터 전체를 지우고 남은 지워지지않은 값들을 다시 insert하는 방법
 
             tx.commit(); //트랜젝션 커밋시점에 쿼리가 나가게 된다
         } catch (Exception e) {

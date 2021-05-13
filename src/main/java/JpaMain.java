@@ -6,6 +6,9 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.EntityTransaction;
 import javax.persistence.Persistence;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Root;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
@@ -254,25 +257,25 @@ public class JpaMain {
 
 //            Address newAddress = new Address("newCity", address.getStreet(), address.getZipcode()); //불변객체를 사용하되 값을 통으로(Address를) 바꿔끼워주는 방법을 사용하자 (필요시 내부에서 카피메서드를 만들어서 사용해도 된다) 생성자로만 값을 설정하고 수정자(Setter)를 만들지 않는 방법도 있다 하지만 불변객체로 만드는걸 추천한다
 //            member.setHomeAddress(newAddress);
-
-            Member member = new Member();
-            member.setUsername("member1");
-            member.setHomeAddress(new Address("homecity", "street", "10000"));
-
-            member.getFavoriteFoods().add("치킨");
-            member.getFavoriteFoods().add("족발");
-            member.getFavoriteFoods().add("피자"); //hashSet에 들어갈 것
-
-            member.getAddressHistory().add(new AddressEntity("old1", "street", "10000"));
-            member.getAddressHistory().add(new AddressEntity("old2", "street", "10000"));
-
-            em.persist(member);
-
-            em.flush();
-            em.clear();
-
-            System.out.println("==========Start==========");
-            Member findMember = em.find(Member.class, member.getId()); //컬렉션들은 지연로딩!
+//
+//            Member member = new Member();
+//            member.setUsername("member1");
+//            member.setHomeAddress(new Address("homecity", "street", "10000"));
+//
+//            member.getFavoriteFoods().add("치킨");
+//            member.getFavoriteFoods().add("족발");
+//            member.getFavoriteFoods().add("피자"); //hashSet에 들어갈 것
+//
+//            member.getAddressHistory().add(new AddressEntity("old1", "street", "10000"));
+//            member.getAddressHistory().add(new AddressEntity("old2", "street", "10000"));
+//
+//            em.persist(member);
+//
+//            em.flush();
+//            em.clear();
+//
+//            System.out.println("==========Start==========");
+//            Member findMember = em.find(Member.class, member.getId()); //컬렉션들은 지연로딩!
 
 //            List<Address> addressHistory = findMember.getAddressHistory();
 //            for (Address address : addressHistory) {
@@ -284,18 +287,59 @@ public class JpaMain {
 //                System.out.println("favoriteFood = " + favoriteFood);
 //            }
 
-            //homeCity -> newCity
-            Address a = findMember.getHomeAddress();
-            findMember.setHomeAddress(new Address("newCity", a.getStreet(), a.getZipcode())); //값타입은 인스턴스 자체를 갈아껴야한다 Setter사용시 사이드 이펙트 발생가능성
-
-            //치킨 -> 한식  String값타입 업데이트 불가 삭제후 다시 추가하는 방법 사용
-            findMember.getFavoriteFoods().remove("치킨");
-            findMember.getFavoriteFoods().add("한식");
+//            //homeCity -> newCity
+//            Address a = findMember.getHomeAddress();
+//            findMember.setHomeAddress(new Address("newCity", a.getStreet(), a.getZipcode())); //값타입은 인스턴스 자체를 갈아껴야한다 Setter사용시 사이드 이펙트 발생가능성
+//
+//            //치킨 -> 한식  String값타입 업데이트 불가 삭제후 다시 추가하는 방법 사용
+//            findMember.getFavoriteFoods().remove("치킨");
+//            findMember.getFavoriteFoods().add("한식");
 
             //
 //            findMember.getAddressHistory().remove(new Address("old1", "street", "10000")); //equls 제대로 안해놓으면 제대로 안지워짐
 //            findMember.getAddressHistory().remove(new Address("newCity1", "street", "10000"));
             //그냥 사용하면 안되는 방법이다 데이터 전체를 지우고 남은 지워지지않은 값들을 다시 insert하는 방법
+
+            //JPQL
+//            List<Member> result = em.createQuery(
+//                    "select m from Member as m where m.username like '%kim%'", Member.class
+//            ).getResultList();
+//
+//            for (Member member : result) {
+//                System.out.println("member = " + member);
+//            }
+
+            //Criteria 사용 준비 (자바 표준에서 제공) - 실무에서 사용 X 코드도 못알아보고 유지보수도 안된다 (이런게 있구나 알아만 두자)
+//            CriteriaBuilder cb = em.getCriteriaBuilder();
+//            CriteriaQuery<Member> query = cb.createQuery(Member.class);
+//
+//            Root<Member> m = query.from(Member.class);
+//
+//            CriteriaQuery<Member> cq = query.select(m).where(cb.equal(m.get("username"), "kim"));
+//            List<Member> resultList = em.createQuery(cq)
+//                    .getResultList();
+
+            //Criteria대신 QueryDSL추천.
+
+            //네이티브 SQL
+            List<Member> resultList = em.createNativeQuery("select MEMBER_ID, city, street, zipcode, USERNAME from MEMBER", Member.class)
+                    .getResultList();
+
+            Member member = new Member();
+            member.setUsername("member1");
+            em.persist(member);
+
+            // flush -> commit, query
+
+            //강제로 flush
+            em.flush();
+
+            //결과 0  DB에 결과가 없고 영속성 컨텍스트에만 결과가 있다 그러므로 강제로 flush를 해야함
+            //dbconn.createQuery("select * from member");
+
+            for (Member member1 : resultList) { //뿌려봐야 뿌릴게 없으므로 나오지 않을 것
+                System.out.println("member1 = " + member1);
+            }
 
             tx.commit(); //트랜젝션 커밋시점에 쿼리가 나가게 된다
         } catch (Exception e) {
